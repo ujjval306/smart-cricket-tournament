@@ -1,6 +1,7 @@
 package com.example.smart_cricket_tournament.controller;
 
 import com.example.smart_cricket_tournament.dto.AuthRequest;
+import com.example.smart_cricket_tournament.dto.AuthResponse;
 import com.example.smart_cricket_tournament.dto.RegisterRequest;
 import com.example.smart_cricket_tournament.entity.User;
 import com.example.smart_cricket_tournament.repository.UserRepository;
@@ -47,7 +48,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> login(@RequestBody @Validated AuthRequest request) {
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody @Validated AuthRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -56,6 +57,8 @@ public class AuthController {
         }
 
         String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", token));
+
+        AuthResponse authResponse = new AuthResponse(user,token);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", authResponse));
     }
 }
