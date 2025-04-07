@@ -4,9 +4,11 @@ import com.example.smart_cricket_tournament.dto.TeamRequest;
 import com.example.smart_cricket_tournament.dto.TeamResponse;
 import com.example.smart_cricket_tournament.entity.Team;
 import com.example.smart_cricket_tournament.entity.Tournament;
+import com.example.smart_cricket_tournament.exception.BadRequestException;
 import com.example.smart_cricket_tournament.repository.TeamRepository;
 import com.example.smart_cricket_tournament.repository.TournamentRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,11 @@ public class TeamService {
     public TeamResponse createTeam(TeamRequest request){
         Tournament tournament = tournamentRepository.findById(request.tournamentId())
                 .orElseThrow(()->new RuntimeException("Tournament not found"));
+
+        boolean exists = teamRepository.existsByNameAndTournamentId(request.name(), request.tournamentId());
+        if (exists) {
+            throw new BadRequestException("Team with this name already exists in the tournament", HttpStatus.BAD_REQUEST);
+        }
 
         Team team = Team.builder()
                 .name(request.name())
@@ -46,6 +53,14 @@ public class TeamService {
 
         Tournament tournament = tournamentRepository.findById(request.tournamentId())
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
+
+//        if (!team.getName().equalsIgnoreCase(request.name()) || !team.getTournament().getId().equals(request.tournamentId())) {
+//            boolean exists = teamRepository.existsByNameAndTournamentId(request.name(), request.tournamentId());
+//            if (exists) {
+//                throw new BadRequestException("Another team with this name already exists in the tournament");
+//            }
+//        }
+
 
         team.setName(request.name());
         team.setCity(request.city());

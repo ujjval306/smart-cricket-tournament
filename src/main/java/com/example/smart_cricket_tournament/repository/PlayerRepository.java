@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     Optional<Player> findByTeamIdAndIsCaptainTrue(Long teamId);
+    boolean existsByNameAndTeamId(String name, Long teamId);
 }

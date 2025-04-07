@@ -4,9 +4,11 @@ import com.example.smart_cricket_tournament.dto.PlayerRequest;
 import com.example.smart_cricket_tournament.dto.PlayerResponse;
 import com.example.smart_cricket_tournament.entity.Player;
 import com.example.smart_cricket_tournament.entity.Team;
+import com.example.smart_cricket_tournament.exception.BadRequestException;
 import com.example.smart_cricket_tournament.repository.PlayerRepository;
 import com.example.smart_cricket_tournament.repository.TeamRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +28,11 @@ public class PlayerService {
                     .ifPresent(existingCaptain -> {
                         throw new RuntimeException("This team already has a captain: " + existingCaptain.getName());
                     });
+        }
+
+        boolean exists = playerRepository.existsByNameAndTeamId(request.name(), request.teamId());
+        if (exists) {
+            throw new BadRequestException("Player with this name already exists in the team",HttpStatus.BAD_REQUEST);
         }
 
         Player player = Player.builder()
@@ -58,6 +65,13 @@ public class PlayerService {
 
         Team team = teamRepository.findById(request.teamId())
                 .orElseThrow(() -> new RuntimeException("Team not found"));
+
+        if (!player.getName().equalsIgnoreCase(request.name()) || !player.getTeam().getId().equals(request.teamId())) {
+            boolean exists = playerRepository.existsByNameAndTeamId(request.name(), request.teamId());
+            if (exists) {
+                throw new BadRequestException("Another player with this name already exists in the team", HttpStatus.BAD_REQUEST);
+            }
+        }
 
         player.setName(request.name());
         player.setRole(request.role());
