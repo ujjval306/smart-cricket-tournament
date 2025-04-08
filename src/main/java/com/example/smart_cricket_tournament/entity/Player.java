@@ -29,4 +29,6 @@ public class Player {
     private Team team;
 
     private boolean isCaptain;
+    private boolean isViceCaptain;
+    private boolean isSubstitute;
 }

@@ -26,13 +26,13 @@ public class TeamController {
     }
 
     @GetMapping("/getAllTeams")
-    public List<TeamResponse> getAllTeams() {
-        return teamService.getAllTeams();
+    public ResponseEntity<ApiResponse<List<TeamResponse>>> getAllTeams() {
+        return ResponseEntity.ok(new ApiResponse<>(true,"All teams fetched successfully",teamService.getAllTeams()));
     }
 
     @GetMapping("/getTeamDetail/{id}")
-    public TeamResponse getTeam(@PathVariable Long id) {
-        return teamService.getTeam(id);
+    public ResponseEntity<ApiResponse<TeamResponse>>  getTeam(@PathVariable Long id) {
+        return ResponseEntity.ok(new ApiResponse<>(true,"Team detail fetched successfully",teamService.getTeam(id)));
     }
 
     @PutMapping("/update/{id}")

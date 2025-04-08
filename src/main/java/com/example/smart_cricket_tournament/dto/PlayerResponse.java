@@ -8,7 +8,8 @@ public record PlayerResponse(
         int totalWickets,
         int matchesPlayed,
         boolean isCaptain,
+        boolean isViceCaptain,
+        boolean isSubstitute,
         Long teamId,
         String teamName
-) {
-}
+) { }

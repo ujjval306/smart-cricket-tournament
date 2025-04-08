@@ -8,7 +8,6 @@ import com.example.smart_cricket_tournament.exception.BadRequestException;
 import com.example.smart_cricket_tournament.repository.TeamRepository;
 import com.example.smart_cricket_tournament.repository.TournamentRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,12 +24,12 @@ public class TeamService {
 
         boolean exists = teamRepository.existsByNameAndTournamentId(request.name(), request.tournamentId());
         if (exists) {
-            throw new BadRequestException("Team with this name already exists in the tournament", HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Team with this name already exists in the tournament");
         }
 
         Team team = Team.builder()
                 .name(request.name())
-                .city(request.city())
+//                .city(request.city())
                 .tournament(tournament)
                 .build();
         return mapToResponse(teamRepository.save(team));
@@ -63,7 +62,7 @@ public class TeamService {
 
 
         team.setName(request.name());
-        team.setCity(request.city());
+//        team.setCity(request.city());
         team.setTournament(tournament);
 
         return mapToResponse(teamRepository.save(team));

@@ -7,5 +7,7 @@ public record PlayerRequest(
         int totalWickets,
         int matchesPlayed,
         boolean isCaptain,
+        boolean isViceCaptain,
+        boolean isSubstitute,
         Long teamId
 ) { }
