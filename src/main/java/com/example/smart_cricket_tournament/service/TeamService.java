@@ -98,6 +98,8 @@ public class TeamService {
                 .isCaptain(player.isCaptain())
                 .isViceCaptain(player.isViceCaptain())
                 .isSubstitute(player.isSubstitute())
+                .teamId(player.getTeam().getId())
+                .teamName(player.getTeam().getName())
                 .build();
     }
 
