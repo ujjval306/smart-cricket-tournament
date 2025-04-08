@@ -1,7 +1,9 @@
 package com.example.smart_cricket_tournament.service;
 
+import com.example.smart_cricket_tournament.dto.PlayerResponse;
 import com.example.smart_cricket_tournament.dto.TeamRequest;
 import com.example.smart_cricket_tournament.dto.TeamResponse;
+import com.example.smart_cricket_tournament.entity.Player;
 import com.example.smart_cricket_tournament.entity.Team;
 import com.example.smart_cricket_tournament.entity.Tournament;
 import com.example.smart_cricket_tournament.exception.BadRequestException;
@@ -62,7 +64,6 @@ public class TeamService {
 
 
         team.setName(request.name());
-//        team.setCity(request.city());
         team.setTournament(tournament);
 
         return mapToResponse(teamRepository.save(team));
@@ -73,12 +74,31 @@ public class TeamService {
     }
 
     private TeamResponse mapToResponse(Team team) {
-        return new TeamResponse(
-                team.getId(),
-                team.getName(),
-//                team.getCity(),
-                team.getTournament().getId(),
-                team.getTournament().getName()
-        );
+        List<PlayerResponse> players = team.getPlayers().stream()
+                .map(this::mapToPlayerResponse)
+                .toList();
+
+        return TeamResponse.builder()
+                .id(team.getId())
+                .name(team.getName())
+                .tournamentId(team.getTournament().getId())
+                .tournamentName(team.getTournament().getName())
+                .players(players)
+                .build();
     }
+
+    private PlayerResponse mapToPlayerResponse(Player player) {
+        return PlayerResponse.builder()
+                .id(player.getId())
+                .name(player.getName())
+                .role(player.getRole())
+                .totalRuns(player.getTotalRuns())
+                .totalWickets(player.getTotalWickets())
+                .matchesPlayed(player.getMatchesPlayed())
+                .isCaptain(player.isCaptain())
+                .isViceCaptain(player.isViceCaptain())
+                .isSubstitute(player.isSubstitute())
+                .build();
+    }
+
 }

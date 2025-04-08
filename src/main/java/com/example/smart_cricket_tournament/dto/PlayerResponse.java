@@ -1,5 +1,8 @@
 package com.example.smart_cricket_tournament.dto;
 
+import lombok.Builder;
+
+@Builder
 public record PlayerResponse(
         Long id,
         String name,

@@ -1,9 +1,14 @@
 package com.example.smart_cricket_tournament.dto;
 
+import lombok.Builder;
+
+import java.util.List;
+
+@Builder
 public record TeamResponse(
         Long id,
         String name,
-//        String city,
         Long tournamentId,
-        String tournamentName
+        String tournamentName,
+        List<PlayerResponse> players
 ) { }
