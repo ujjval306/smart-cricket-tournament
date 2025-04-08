@@ -22,7 +22,7 @@ public class Team {
 
     private String name;
 
-    private String city;
+//    private String city;
 
     @ManyToOne
     @JoinColumn(name = "tournament_id")

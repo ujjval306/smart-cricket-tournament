@@ -76,7 +76,7 @@ public class TeamService {
         return new TeamResponse(
                 team.getId(),
                 team.getName(),
-                team.getCity(),
+//                team.getCity(),
                 team.getTournament().getId(),
                 team.getTournament().getName()
         );

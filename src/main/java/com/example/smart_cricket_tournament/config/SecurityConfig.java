@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/tournaments/**").hasRole("ADMIN")
                         .requestMatchers("/api/teams/**").hasAnyRole("ADMIN","TEAM_MANAGER")
                         .requestMatchers("/api/players/**").hasAnyRole("ADMIN","TEAM_MANAGER")
+                        .requestMatchers("/api/matches/**").hasAnyRole("ADMIN","TEAM_MANAGER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
