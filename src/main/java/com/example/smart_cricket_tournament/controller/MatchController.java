@@ -1,6 +1,7 @@
 package com.example.smart_cricket_tournament.controller;
 
 import com.example.smart_cricket_tournament.dto.ScheduleMatchRequest;
+import com.example.smart_cricket_tournament.dto.ScheduleMatchResponse;
 import com.example.smart_cricket_tournament.entity.Match;
 import com.example.smart_cricket_tournament.service.MatchService;
 import com.example.smart_cricket_tournament.util.ApiResponse;
@@ -23,9 +24,10 @@ public class MatchController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Match scheduled successfully",match));
     }
 
-    @GetMapping("/matches/{tournamentId}")
-    public ResponseEntity<ApiResponse> getMatchesByTournament(@PathVariable Long tournamentId) {
-        List<Match> matches = matchService.getMatchesByTournament(tournamentId);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Matches fetched", matches));
+    @GetMapping("/{tournamentId}")
+    public ResponseEntity<ApiResponse<List<ScheduleMatchResponse>>> getMatchesByTournament(@PathVariable Long tournamentId) {
+        List<ScheduleMatchResponse> matches = matchService.getMatchesByTournament(tournamentId);
+        return ResponseEntity.ok(new ApiResponse<>(
+                true, "Matches fetched", matches));
     }
 }

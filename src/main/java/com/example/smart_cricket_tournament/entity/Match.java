@@ -4,6 +4,7 @@ import com.example.smart_cricket_tournament.enums.MatchFormat;
 import com.example.smart_cricket_tournament.enums.MatchStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,8 @@ import java.time.LocalTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Table(name = "`match`")
 public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

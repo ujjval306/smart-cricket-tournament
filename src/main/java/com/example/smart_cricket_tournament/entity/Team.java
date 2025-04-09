@@ -1,10 +1,7 @@
 package com.example.smart_cricket_tournament.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +9,7 @@ import java.util.List;
 @Data
 @Entity
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 

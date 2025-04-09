@@ -74,9 +74,9 @@ public class TeamService {
     }
 
     private TeamResponse mapToResponse(Team team) {
-        List<PlayerResponse> players = team.getPlayers().stream()
+        List<PlayerResponse> players = team.getPlayers() != null ? team.getPlayers().stream()
                 .map(this::mapToPlayerResponse)
-                .toList();
+                .toList(): List.of();
 
         return TeamResponse.builder()
                 .id(team.getId())

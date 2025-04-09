@@ -1,6 +1,7 @@
 package com.example.smart_cricket_tournament.service;
 
 import com.example.smart_cricket_tournament.dto.ScheduleMatchRequest;
+import com.example.smart_cricket_tournament.dto.ScheduleMatchResponse;
 import com.example.smart_cricket_tournament.entity.Match;
 import com.example.smart_cricket_tournament.entity.Team;
 import com.example.smart_cricket_tournament.entity.Tournament;
@@ -10,7 +11,6 @@ import com.example.smart_cricket_tournament.exception.ResourceNotFoundException;
 import com.example.smart_cricket_tournament.repository.MatchRepository;
 import com.example.smart_cricket_tournament.repository.TeamRepository;
 import com.example.smart_cricket_tournament.repository.TournamentRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -60,9 +60,27 @@ public class MatchService {
         return matchRepository.save(match);
     }
 
-    public List<Match> getMatchesByTournament(Long tournamentId) {
-        return matchRepository.findAll().stream()
-                .filter(match -> match.getTournament().getId().equals(tournamentId))
-                .toList();
+    public List<ScheduleMatchResponse> getMatchesByTournament(Long tournamentId) {
+        List<Match> matches = matchRepository.findByTournamentId(tournamentId);
+        return matches.stream().map(this::mapToResponse).toList();
     }
+
+    private ScheduleMatchResponse mapToResponse(Match match){
+        return new ScheduleMatchResponse(
+                match.getId(),
+                match.getTournament().getId(),
+                match.getTournament().getName(),
+
+                match.getTeamA().getId(),
+                match.getTeamA().getName(),
+
+                match.getTeamB().getId(),
+                match.getTeamB().getName(),
+                match.getMatchDate(),
+                match.getMatchTime(),
+                match.getVenue()
+                );
+    }
+
+
 }
