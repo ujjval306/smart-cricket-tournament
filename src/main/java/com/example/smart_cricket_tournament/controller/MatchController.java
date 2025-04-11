@@ -6,6 +6,7 @@ import com.example.smart_cricket_tournament.entity.Match;
 import com.example.smart_cricket_tournament.service.MatchService;
 import com.example.smart_cricket_tournament.util.ApiResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +22,13 @@ public class MatchController {
     @PostMapping("/schedule")
     public ResponseEntity<ApiResponse> scheduleMatch(@RequestBody @Validated ScheduleMatchRequest request){
         Match match = matchService.scheduleMatch(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Match scheduled successfully",match));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.CREATED, "Match scheduled successfully",match));
     }
 
     @GetMapping("/{tournamentId}")
     public ResponseEntity<ApiResponse<List<ScheduleMatchResponse>>> getMatchesByTournament(@PathVariable Long tournamentId) {
         List<ScheduleMatchResponse> matches = matchService.getMatchesByTournament(tournamentId);
         return ResponseEntity.ok(new ApiResponse<>(
-                true, "Matches fetched", matches));
+                HttpStatus.OK, "Matches fetched", matches));
     }
 }

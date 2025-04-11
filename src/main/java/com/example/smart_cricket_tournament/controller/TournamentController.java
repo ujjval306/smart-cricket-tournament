@@ -5,6 +5,7 @@ import com.example.smart_cricket_tournament.dto.TournamentResponse;
 import com.example.smart_cricket_tournament.service.TournamentService;
 import com.example.smart_cricket_tournament.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,27 +19,27 @@ public class TournamentController {
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<TournamentResponse>> create(@RequestBody TournamentRequest request){
-        return ResponseEntity.ok(new ApiResponse<>(true,"Tournament created",tournamentService.createTournament(request)));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.CREATED,"Tournament created",tournamentService.createTournament(request)));
     }
 
     @GetMapping("/getAllTournaments")
     public ResponseEntity<ApiResponse<List<TournamentResponse>>> getAll() {
-        return ResponseEntity.ok(new ApiResponse<>(true, "List of tournaments", tournamentService.getAllTournaments()));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "List of tournaments", tournamentService.getAllTournaments()));
     }
 
     @GetMapping("/getTournament/{id}")
     public ResponseEntity<ApiResponse<TournamentResponse>> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(new ApiResponse<>(true, "Tournament details", tournamentService.getTournament(id)));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Tournament details", tournamentService.getTournament(id)));
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<TournamentResponse>> update(@PathVariable Long id, @RequestBody TournamentRequest request) {
-        return ResponseEntity.ok(new ApiResponse<>(true, "Tournament updated", tournamentService.updateTournament(id, request)));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.CREATED, "Tournament updated", tournamentService.updateTournament(id, request)));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id) {
         tournamentService.deleteTournament(id);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Tournament deleted", null));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Tournament deleted", null));
     }
 }

@@ -8,6 +8,7 @@ import com.example.smart_cricket_tournament.repository.UserRepository;
 import com.example.smart_cricket_tournament.security.JwtService;
 import com.example.smart_cricket_tournament.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +30,9 @@ public class AuthController {
     public ResponseEntity<ApiResponse<User>> register(@RequestBody @Validated RegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
             return ResponseEntity.badRequest().body(ApiResponse.<User>builder()
-                    .success(false).message("Email already registered").build());
+                    .statusCode(HttpStatus.CREATED)
+                    .message("Email already registered")
+                    .build());
         }
 
         User user = User.builder()
@@ -44,7 +47,7 @@ public class AuthController {
        user = userRepository.save(user);
 
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "User registered", user));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.CREATED, "User registered", user));
     }
 
     @PostMapping("/login")
@@ -59,6 +62,6 @@ public class AuthController {
         String token = jwtService.generateToken(user);
 
         AuthResponse authResponse = new AuthResponse(user,token);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", authResponse));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Login successful", authResponse));
     }
 }
