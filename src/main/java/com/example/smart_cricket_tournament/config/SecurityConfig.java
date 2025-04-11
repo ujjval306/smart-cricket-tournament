@@ -3,6 +3,7 @@ package com.example.smart_cricket_tournament.config;
 import com.example.smart_cricket_tournament.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.*;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.*;
 import org.springframework.security.config.annotation.authentication.configuration.*;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -29,6 +30,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/tournaments/**").hasRole("ADMIN")
                         .requestMatchers("/api/teams/**").hasAnyRole("ADMIN","TEAM_MANAGER")
                         .requestMatchers("/api/players/**").hasAnyRole("ADMIN","TEAM_MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/api/players/getAllPlayers", "/api/players/getPlayerDetail/**").hasAnyRole("ADMIN", "TEAM_MANAGER", "PLAYER")
                         .requestMatchers("/api/matches/**").hasAnyRole("ADMIN","TEAM_MANAGER")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
