@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/players/getAllPlayers", "/api/players/getPlayerDetail/**").hasAnyRole("ADMIN", "TEAM_MANAGER", "PLAYER")
                         .requestMatchers("/api/matches/**").hasAnyRole("ADMIN","TEAM_MANAGER")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/points-table").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

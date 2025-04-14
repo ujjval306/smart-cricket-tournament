@@ -1,5 +1,6 @@
 package com.example.smart_cricket_tournament.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,7 @@ public class Tournament {
     private LocalDate startDate;
     private LocalDate endDate;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL)
     private List<Team> teams = new ArrayList<>();
 }

@@ -1,5 +1,7 @@
 package com.example.smart_cricket_tournament.service;
 
+import com.example.smart_cricket_tournament.dto.LiveScoreUpdateRequest;
+import com.example.smart_cricket_tournament.dto.MatchResultRequest;
 import com.example.smart_cricket_tournament.dto.ScheduleMatchRequest;
 import com.example.smart_cricket_tournament.dto.ScheduleMatchResponse;
 import com.example.smart_cricket_tournament.entity.Match;
@@ -9,6 +11,7 @@ import com.example.smart_cricket_tournament.enums.MatchStatus;
 import com.example.smart_cricket_tournament.exception.BadRequestException;
 import com.example.smart_cricket_tournament.exception.ResourceNotFoundException;
 import com.example.smart_cricket_tournament.repository.MatchRepository;
+import com.example.smart_cricket_tournament.repository.PointsTableRepository;
 import com.example.smart_cricket_tournament.repository.TeamRepository;
 import com.example.smart_cricket_tournament.repository.TournamentRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +25,10 @@ public class MatchService {
     private final TournamentRepository tournamentRepository;
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
+    private final PointsTableRepository pointsTableRepository;
+    private final PointsTableService pointsTableService;
 
-    public Match scheduleMatch(ScheduleMatchRequest request) {
+    public ScheduleMatchResponse scheduleMatch(ScheduleMatchRequest request) {
 
         Tournament tournament = tournamentRepository.findById(request.getTournamentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Tournament not found"));
@@ -57,7 +62,9 @@ public class MatchService {
         match.setFormat(request.getFormat());
         match.setStatus(MatchStatus.SCHEDULED);
 
-        return matchRepository.save(match);
+        Match savedMatch = matchRepository.save(match);
+
+        return mapToResponse(savedMatch);
     }
 
     public List<ScheduleMatchResponse> getMatchesByTournament(Long tournamentId) {
@@ -65,22 +72,109 @@ public class MatchService {
         return matches.stream().map(this::mapToResponse).toList();
     }
 
-    private ScheduleMatchResponse mapToResponse(Match match){
-        return new ScheduleMatchResponse(
-                match.getId(),
-                match.getTournament().getId(),
-                match.getTournament().getName(),
+    public Match updateMatchResult(Long matchId, MatchResultRequest request) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
 
-                match.getTeamA().getId(),
-                match.getTeamA().getName(),
+        if (match.getStatus() == MatchStatus.COMPLETED) {
+            throw new BadRequestException("Match result is already updated");
+        }
 
-                match.getTeamB().getId(),
-                match.getTeamB().getName(),
-                match.getMatchDate(),
-                match.getMatchTime(),
-                match.getVenue()
-                );
+        Team winner = teamRepository.findById(request.getWinnerTeamId())
+                .orElseThrow(() -> new ResourceNotFoundException("Winner team not found"));
+
+        Team loser = (winner.getId().equals(match.getTeamA().getId())) ? match.getTeamB() : match.getTeamA();
+
+        match.setWinner(winner);
+        match.setStatus(MatchStatus.COMPLETED);
+        match.setTeamARuns(request.getTeamARuns());
+        match.setTeamAOvers(request.getTeamAOvers());
+        match.setTeamBRuns(request.getTeamBRuns());
+        match.setTeamBOvers(request.getTeamBOvers());
+
+        Match updatedMatch = matchRepository.save(match);
+        pointsTableService.updatePointsAfterMatch(
+                match.getTeamA(),
+                match.getTeamB(),
+                match.getTeamARuns(),
+                match.getTeamAOvers(),
+                match.getTeamBRuns(),
+                match.getTeamBOvers(),
+                match.getWinner(),
+                match.getTournament()
+        );
+        return updatedMatch;
+
     }
+
+    public Match updateLiveScore(Long matchId, LiveScoreUpdateRequest request) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
+
+        if (match.getStatus() == MatchStatus.COMPLETED) {
+            throw new BadRequestException("Match already completed");
+        }
+
+        match.setTeamARuns(request.getTeamARuns());
+        match.setTeamAOvers(request.getTeamAOvers());
+        match.setTeamBRuns(request.getTeamBRuns());
+        match.setTeamBOvers(request.getTeamBOvers());
+        match.setTeamAWickets(request.getTeamAWickets());
+        match.setTeamBWickets(request.getTeamBWickets());
+
+        return matchRepository.save(match);
+    }
+
+
+
+    private ScheduleMatchResponse mapToResponse(Match match){
+        return ScheduleMatchResponse.builder()
+                .matchId(match.getId())
+                .tournamentId(match.getTournament().getId())
+                .tournamentName(match.getTournament().getName())
+                .teamAId(match.getTeamA().getId())
+                .teamAName(match.getTeamA().getName())
+                .teamBId(match.getTeamB().getId())
+                .teamBName(match.getTeamB().getName())
+                .matchDate(match.getMatchDate())
+                .matchTime(match.getMatchTime())
+                .venue(match.getVenue())
+
+                // Live scores
+                .teamARuns(match.getTeamARuns())
+                .teamAOvers(match.getTeamAOvers())
+                .teamBRuns(match.getTeamBRuns())
+                .teamBOvers(match.getTeamBOvers())
+
+                // Run Rates
+                .teamARunRate(calculateRunRate(match.getTeamARuns(), match.getTeamAOvers()))
+                .teamBRunRate(calculateRunRate(match.getTeamBRuns(), match.getTeamBOvers()))
+
+                .build();
+    }
+
+    private Double calculateRunRate(Integer runs, Integer overs) {
+        if (runs == null || overs == null || overs == 0) return 0.0;
+        return (double) runs / overs;
+    }
+
+
+    //    private ScheduleMatchResponse mapToResponse(Match match){
+//        return new ScheduleMatchResponse(
+//                match.getId(),
+//                match.getTournament().getId(),
+//                match.getTournament().getName(),
+//
+//                match.getTeamA().getId(),
+//                match.getTeamA().getName(),
+//
+//                match.getTeamB().getId(),
+//                match.getTeamB().getName(),
+//                match.getMatchDate(),
+//                match.getMatchTime(),
+//                match.getVenue()
+//                );
+//    }
 
 
 }

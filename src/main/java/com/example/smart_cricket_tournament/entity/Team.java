@@ -1,5 +1,6 @@
 package com.example.smart_cricket_tournament.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class Team {
 
 //    private String city;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "tournament_id")
     private Tournament tournament;

@@ -42,4 +42,14 @@ public class Match {
     private MatchStatus status = MatchStatus.SCHEDULED; // SCHEDULED, COMPLETED, etc.
 
     private String result;
+
+    @ManyToOne
+    private Team winner;
+
+    private Integer teamARuns;
+    private Integer teamAOvers;
+    private Integer teamBRuns;
+    private Integer teamBOvers;
+    private Integer teamAWickets;
+    private Integer teamBWickets;
 }

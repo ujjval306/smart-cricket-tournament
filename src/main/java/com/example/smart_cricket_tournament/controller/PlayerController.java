@@ -1,8 +1,12 @@
 package com.example.smart_cricket_tournament.controller;
 
+import com.example.smart_cricket_tournament.dto.PlayerMatchFormDTO;
 import com.example.smart_cricket_tournament.dto.PlayerRequest;
 import com.example.smart_cricket_tournament.dto.PlayerResponse;
+import com.example.smart_cricket_tournament.entity.Player;
+import com.example.smart_cricket_tournament.repository.PlayerRepository;
 import com.example.smart_cricket_tournament.service.PlayerService;
+import com.example.smart_cricket_tournament.service.PlayerStatsService;
 import com.example.smart_cricket_tournament.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,8 @@ import java.util.List;
 
 public class PlayerController {
     private final PlayerService playerService;
+    private final PlayerStatsService playerStatsService;
+    private final PlayerRepository playerRepository;
 
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEAM_MANAGER')")
@@ -49,4 +55,14 @@ public class PlayerController {
         playerService.deletePlayer(id);
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Player deleted", null));
     }
+
+    @GetMapping("/{playerId}/last-5-matches")
+    public ResponseEntity<ApiResponse<List<PlayerMatchFormDTO>>> getPlayerLast5Matches(@PathVariable Long playerId) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new RuntimeException("Player not found"));
+
+        List<PlayerMatchFormDTO> form = playerStatsService.getLast5MatchesForm(player);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Last 5 matches fetched", form));
+    }
+
 }

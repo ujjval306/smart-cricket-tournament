@@ -21,7 +21,15 @@ public record ScheduleMatchResponse(
 
         LocalDate matchDate,
         LocalTime matchTime,
-        String venue
+        String venue,
+
+        Integer teamARuns,
+        Integer teamAOvers,
+        Integer teamBRuns,
+        Integer teamBOvers,
+        Double teamARunRate,
+        Double teamBRunRate
+
 ) {
 
 }
