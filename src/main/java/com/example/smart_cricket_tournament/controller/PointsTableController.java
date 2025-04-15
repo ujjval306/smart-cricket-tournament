@@ -1,5 +1,6 @@
 package com.example.smart_cricket_tournament.controller;
 
+import com.example.smart_cricket_tournament.dto.PointsTableResponse;
 import com.example.smart_cricket_tournament.entity.PointsTable;
 import com.example.smart_cricket_tournament.service.PointsTableService;
 import com.example.smart_cricket_tournament.util.ApiResponse;
@@ -20,8 +21,9 @@ public class PointsTableController {
     private final PointsTableService pointsTableService;
 
     @GetMapping("/{tournamentId}")
-    public ResponseEntity<ApiResponse<List<PointsTable>>> getPointsTable(@PathVariable Long tournamentId) {
-        List<PointsTable> pointsTable = pointsTableService.getPointsTableForTournament(tournamentId);
+    public ResponseEntity<ApiResponse<List<PointsTableResponse>>> getPointsTable(@PathVariable Long tournamentId) {
+        List<PointsTableResponse> pointsTable = pointsTableService.getPointsTableForTournament(tournamentId);
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Points table fetched successfully", pointsTable));
     }
+
 }

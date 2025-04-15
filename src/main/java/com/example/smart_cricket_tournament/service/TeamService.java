@@ -87,6 +87,7 @@ public class TeamService {
                 .build();
     }
 
+
     private PlayerResponse mapToPlayerResponse(Player player) {
         return PlayerResponse.builder()
                 .id(player.getId())

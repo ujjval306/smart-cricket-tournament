@@ -1,19 +1,11 @@
 package com.example.smart_cricket_tournament.service;
 
-import com.example.smart_cricket_tournament.dto.LiveScoreUpdateRequest;
-import com.example.smart_cricket_tournament.dto.MatchResultRequest;
-import com.example.smart_cricket_tournament.dto.ScheduleMatchRequest;
-import com.example.smart_cricket_tournament.dto.ScheduleMatchResponse;
-import com.example.smart_cricket_tournament.entity.Match;
-import com.example.smart_cricket_tournament.entity.Team;
-import com.example.smart_cricket_tournament.entity.Tournament;
+import com.example.smart_cricket_tournament.dto.*;
+import com.example.smart_cricket_tournament.entity.*;
 import com.example.smart_cricket_tournament.enums.MatchStatus;
 import com.example.smart_cricket_tournament.exception.BadRequestException;
 import com.example.smart_cricket_tournament.exception.ResourceNotFoundException;
-import com.example.smart_cricket_tournament.repository.MatchRepository;
-import com.example.smart_cricket_tournament.repository.PointsTableRepository;
-import com.example.smart_cricket_tournament.repository.TeamRepository;
-import com.example.smart_cricket_tournament.repository.TournamentRepository;
+import com.example.smart_cricket_tournament.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +19,8 @@ public class MatchService {
     private final MatchRepository matchRepository;
     private final PointsTableRepository pointsTableRepository;
     private final PointsTableService pointsTableService;
+    private final PlayerRepository playerRepository;
+    private final LiveMatchPlayerStatsRepository liveMatchPlayerStatsRepository;
 
     public ScheduleMatchResponse scheduleMatch(ScheduleMatchRequest request) {
 
@@ -107,7 +101,7 @@ public class MatchService {
 
     }
 
-    public Match updateLiveScore(Long matchId, LiveScoreUpdateRequest request) {
+    public Match updateLiveScore(Long matchId, LiveScoreUpdateDetailedRequest request) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
 
@@ -115,19 +109,50 @@ public class MatchService {
             throw new BadRequestException("Match already completed");
         }
 
-        match.setTeamARuns(request.getTeamARuns());
-        match.setTeamAOvers(request.getTeamAOvers());
-        match.setTeamBRuns(request.getTeamBRuns());
-        match.setTeamBOvers(request.getTeamBOvers());
-        match.setTeamAWickets(request.getTeamAWickets());
-        match.setTeamBWickets(request.getTeamBWickets());
+        match.setTeamARuns(request.teamARuns());
+        match.setTeamAOvers(request.teamAOvers());
+        match.setTeamAWickets(request.teamAWickets());
+        match.setTeamBRuns(request.teamBRuns());
+        match.setTeamBOvers(request.teamBOvers());
+        match.setTeamBWickets(request.teamBWickets());
 
-        return matchRepository.save(match);
+        matchRepository.save(match);
+        updatePlayerStats(matchId, request.strikerId(), request.strikerRuns(), request.strikerBalls(), true, false, false);
+        updatePlayerStats(matchId, request.nonStrikerId(), request.nonStrikerRuns(), request.nonStrikerBalls(), false, true, false);
+        updatePlayerStats(matchId, request.bowlerId(), 0, 0, false, false, true, request.bowlerWickets(), request.bowlerOvers());
+
+        return match;
+    }
+    private void updatePlayerStats(Long matchId, Long playerId, Integer runs, Integer balls, boolean striker, boolean nonStriker, boolean bowler) {
+        updatePlayerStats(matchId, playerId, runs, balls, striker, nonStriker, bowler, 0, 0);
     }
 
+    private void updatePlayerStats(Long matchId, Long playerId, Integer runs, Integer balls, boolean striker, boolean nonStriker, boolean bowler, Integer wickets, Integer overs) {
+        if (playerId == null) return;
 
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Player not found"));
 
-    private ScheduleMatchResponse mapToResponse(Match match){
+        LiveMatchPlayerStats stats = liveMatchPlayerStatsRepository
+                .findByMatchIdAndPlayerId(matchId, playerId)
+                .orElseGet(LiveMatchPlayerStats::new);
+
+        stats.setMatch(Match.builder().id(matchId).build());
+        stats.setPlayer(player);
+
+        if (striker) stats.setStriker(true);
+        if (nonStriker) stats.setNonStriker(true);
+        if (bowler) stats.setBowler(true);
+
+        stats.setRunsScored(runs);
+        stats.setBallsFaced(balls);
+        stats.setWicketsTaken(wickets);
+        stats.setOversBowled(overs);
+
+        liveMatchPlayerStatsRepository.save(stats);
+    }
+
+    public ScheduleMatchResponse mapToResponse(Match match){
         return ScheduleMatchResponse.builder()
                 .matchId(match.getId())
                 .tournamentId(match.getTournament().getId())

@@ -1,5 +1,6 @@
 package com.example.smart_cricket_tournament.service;
 
+import com.example.smart_cricket_tournament.dto.PointsTableResponse;
 import com.example.smart_cricket_tournament.entity.PointsTable;
 import com.example.smart_cricket_tournament.entity.Team;
 import com.example.smart_cricket_tournament.entity.Tournament;
@@ -16,9 +17,20 @@ public class PointsTableService {
     private final PointsTableRepository pointsTableRepository;
     private final TournamentRepository tournamentRepository;
 
-    public List<PointsTable> getPointsTableForTournament (Long tournamentId) {
-        return pointsTableRepository.findAllByTournamentId(tournamentId);
+    public List<PointsTableResponse> getPointsTableForTournament(Long tournamentId) {
+        return pointsTableRepository.findAllByTournamentId(tournamentId)
+                .stream()
+                .map(pt -> new PointsTableResponse(
+                        pt.getTeam().getName(),
+                        pt.getMatchesPlayed(),
+                        pt.getWins(),
+                        pt.getLosses(),
+                        pt.getPoints(),
+                        pt.getNetRunRate()
+                ))
+                .toList();
     }
+
 
     public void updatePointsAfterMatch(  Team teamA, Team teamB,
                                          int teamARuns, double teamAOvers,
@@ -57,4 +69,5 @@ public class PointsTableService {
 
         pointsTableRepository.save(table);
     }
+
 }

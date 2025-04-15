@@ -1,5 +1,6 @@
 package com.example.smart_cricket_tournament.repository;
 
+import com.example.smart_cricket_tournament.dto.TeamResponse;
 import com.example.smart_cricket_tournament.entity.PointsTable;
 import com.example.smart_cricket_tournament.entity.Team;
 import com.example.smart_cricket_tournament.entity.Tournament;

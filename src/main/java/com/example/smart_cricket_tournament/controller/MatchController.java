@@ -1,9 +1,6 @@
 package com.example.smart_cricket_tournament.controller;
 
-import com.example.smart_cricket_tournament.dto.LiveScoreUpdateRequest;
-import com.example.smart_cricket_tournament.dto.MatchResultRequest;
-import com.example.smart_cricket_tournament.dto.ScheduleMatchRequest;
-import com.example.smart_cricket_tournament.dto.ScheduleMatchResponse;
+import com.example.smart_cricket_tournament.dto.*;
 import com.example.smart_cricket_tournament.entity.Match;
 import com.example.smart_cricket_tournament.service.MatchService;
 import com.example.smart_cricket_tournament.util.ApiResponse;
@@ -35,19 +32,24 @@ public class MatchController {
     }
 
     @PutMapping("/{matchId}/result")
-    public ResponseEntity<ApiResponse<Match>> updateMatchResult(
+    public ResponseEntity<ApiResponse<ScheduleMatchResponse>> updateMatchResult(
             @PathVariable Long matchId,
             @RequestBody MatchResultRequest request) {
         Match updatedMatch = matchService.updateMatchResult(matchId, request);
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Match result updated and points table updated", updatedMatch));
+        ScheduleMatchResponse response = matchService.mapToResponse(updatedMatch);
+
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Match result updated and points table updated", response));
     }
 
     @PutMapping("/{matchId}/live-score")
-    public ResponseEntity<ApiResponse<Match>> updateLiveScore(
+    public ResponseEntity<ApiResponse<ScheduleMatchResponse>> updateLiveScore(
             @PathVariable Long matchId,
-            @RequestBody LiveScoreUpdateRequest request) {
+            @RequestBody LiveScoreUpdateDetailedRequest request) {
+
         Match updated = matchService.updateLiveScore(matchId, request);
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Live score updated", updated));
+        ScheduleMatchResponse response = matchService.mapToResponse(updated);
+
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Live score updated", response));
     }
 
 }

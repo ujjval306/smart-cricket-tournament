@@ -21,6 +21,9 @@ public class TournamentService  {
     private final TournamentRepository tournamentRepository;
     private final JwtService jwtService;
     private final HttpServletRequest httpServletRequest;
+    private final TeamService teamService;
+    private final PointsTableService pointsTableService;
+
 
 
     public TournamentResponse createTournament(TournamentRequest request ){
@@ -82,6 +85,8 @@ public class TournamentService  {
     public void deleteTournament(Long id) {
         tournamentRepository.deleteById(id);
     }
+
+
 
     private TournamentResponse mapToResponse(Tournament t) {
         return new TournamentResponse(
