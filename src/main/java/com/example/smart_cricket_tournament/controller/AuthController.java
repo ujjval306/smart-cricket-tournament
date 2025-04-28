@@ -36,7 +36,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<User>> sendOtpForRegistration(@RequestBody @Validated RegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
             return ResponseEntity.badRequest().body(ApiResponse.<User>builder()
-                    .statusCode(HttpStatus.CREATED)
+                    .statusCode(HttpStatus.BAD_REQUEST)
                     .message("Email already registered")
                     .build());
         }
@@ -66,25 +66,29 @@ public class AuthController {
     @PostMapping("/verify-otp")
     public ResponseEntity<ApiResponse<AuthResponse>> verifyOtp(@RequestBody @Validated OtpVerificationRequest request) {
         User user = userRepository.findByEmail(request.email()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(HttpStatus.BAD_REQUEST, "User not found", null));
+        }
 
-        if (user != null && user.isVerified()) {
+
+        if (user.isVerified()) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(HttpStatus.BAD_REQUEST, "User already verified", null));
         }
 
-        if (user != null && !request.otp().equals(user.getOtp())) {
+        if ( !request.otp().equals(user.getOtp())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(HttpStatus.UNAUTHORIZED, "Invalid OTP", null));
         }
 
-        if(user != null && user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+        if( user.getOtpExpiry().isBefore(LocalDateTime.now())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(HttpStatus.UNAUTHORIZED, "OTP expired", null));
         }
 
-        if (user != null) {
             user.setVerified(true);
             user.setOtp(null);
             user.setOtpExpiry(null);
             userRepository.save(user);
-        }
+
 
         String token = jwtService.generateToken(user);
         AuthResponse authResponse = new AuthResponse(user, token);
